@@ -1,28 +1,79 @@
 const itemForm = document.getElementById("item-form");
 const itemInput = document.getElementById("item-input");
 const itemList = document.getElementById("item-list");
+const clear = document.getElementById("clear");
+const itemFilter = document.getElementById("filter");
+const items = itemList.querySelectorAll("li");
 
 
-// Event Listeners 
 
-function addItem(e){
+
+
+
+function displayItems(){
+    const itemsFromStorage = getItemsFromStorage();
+
+    itemsFromStorage.forEach(item => addItemToDOM(item));
+
+    checkUi();
+}
+
+
+
+function onAddItemSubmit(e){
     e.preventDefault();
 
     const newItem = itemInput.value;
 
     if(newItem === ''){
         alert("Please add and item!");
+        return;
     }
 
+
+    
+    addItemToDOM(newItem);
+    addItemToStorage(newItem);
+    checkUi();
+
+    itemInput.value = '';
+
+}
+
+
+function getItemsFromStorage(){
+    let itemsFromStorage;
+
+    if(localStorage.getItem("items") === null){
+        itemsFromStorage = [];
+    }else{
+        itemsFromStorage = JSON.parse(localStorage.getItem("items"));
+    }
+
+    return itemsFromStorage;
+
+}
+
+
+
+
+
+function addItemToDOM(item){
     const li = document.createElement("li");
-    li.appendChild(document.createTextNode(newItem));
+    li.appendChild(document.createTextNode(item));
     li.appendChild(createButton("remove-item btn-link text-red"));
 
     itemList.appendChild(li);
 
-    itemInput.value = '';
+}
 
-    console.log(li);
+function addItemToStorage(item){
+    const itemsFromStorage = getItemsFromStorage();
+
+    itemsFromStorage.push(item);
+
+
+    localStorage.setItem("items", JSON.stringify(itemsFromStorage));
 }
 
 
@@ -42,4 +93,77 @@ function createIcon(classes){
 }
 
 
-itemForm.addEventListener("submit", addItem);
+
+
+
+function removeItem(e){
+    if(e.target.parentElement.classList.contains('remove-item')){
+        if(confirm("Are you sure that you want to delete ?")){
+            e.target.parentElement.parentElement.remove();
+            checkUi();
+        }
+    }
+}
+
+
+
+
+
+
+
+function clearItems(){
+    while(itemList.firstChild){
+        itemList.removeChild(itemList.firstChild);
+    }
+    checkUi();
+}
+
+
+
+
+
+function checkUi(){
+    const items = itemList.querySelectorAll("li");
+    if(items.length === 0){
+        clear.style.display = "none";
+        itemFilter.style.display = "none";
+    }else{
+        clear.style.display = "block";
+        itemFilter.style.display = "block";
+    }
+}
+
+
+function filterItems(e){
+    const items = itemList.querySelectorAll("li");
+    const text = e.target.value.toLowerCase();
+
+    items.forEach(item => {
+        const itemName = item.firstChild.textContent.toLowerCase();
+        if(itemName.indexOf(text) != -1){
+            item.style.display = 'flex';
+        }else{
+            item.style.display = 'none';
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+function init(){
+    itemForm.addEventListener("submit", onAddItemSubmit);
+    itemFilter.addEventListener("input", filterItems);
+    document.addEventListener("DOMContentLoaded", displayItems);
+    clear.addEventListener("click", clearItems);
+    itemList.addEventListener("click", removeItem);
+
+    checkUi();
+}
+
+init();
