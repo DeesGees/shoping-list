@@ -150,12 +150,6 @@ function filterItems(e){
 
 
 
-
-
-
-
-
-
 function init(){
     itemForm.addEventListener("submit", onAddItemSubmit);
     itemFilter.addEventListener("input", filterItems);
