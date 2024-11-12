@@ -93,16 +93,34 @@ function createIcon(classes){
 }
 
 
-
-
-
-function removeItem(e){
+function onClickItem(e){
     if(e.target.parentElement.classList.contains('remove-item')){
-        if(confirm("Are you sure that you want to delete ?")){
-            e.target.parentElement.parentElement.remove();
-            checkUi();
-        }
+        removeItem(e.target.parentElement.parentElement);
     }
+
+
+    
+
+
+    checkUi()
+}
+
+
+function removeItem(item){
+    if(confirm("Are you sure")){
+        item.remove();
+
+        removeItemFromStorage(item.textContent);
+    }
+}
+
+function removeItemFromStorage(item){
+    let itemsFromStorage = getItemsFromStorage();
+
+    itemsFromStorage = itemsFromStorage.filter((i) => i !== item );
+
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage));
+
 }
 
 
@@ -155,9 +173,11 @@ function init(){
     itemFilter.addEventListener("input", filterItems);
     document.addEventListener("DOMContentLoaded", displayItems);
     clear.addEventListener("click", clearItems);
-    itemList.addEventListener("click", removeItem);
+    itemList.addEventListener("click", onClickItem);
 
     checkUi();
 }
 
 init();
+
+
